@@ -5,8 +5,6 @@ on:
     workflows: ["CodeQL"]
     types:
       - completed
-  push:
-    branches: ["master"]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.run_id }}
@@ -20,7 +18,8 @@ jobs:
   check-alerts:
     runs-on: ubuntu-latest
     outputs:
-      alert_status: ${{ steps.check-alerts.outputs.alert_status }}
+      high_alert_status: ${{ steps.check-alerts.outputs.high_alert_status }}
+      low_alert_status: ${{ steps.check-alerts.outputs.low_alert_status }}
     steps:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -38,8 +37,7 @@ jobs:
         run: npm install @octokit/rest node-fetch @actions/core
 
       - name: Verify AWS Identity
-        run: |
-          aws sts get-caller-identity
+        run: aws sts get-caller-identity
 
       - name: Check for security alerts
         id: check-alerts
@@ -47,7 +45,7 @@ jobs:
           node -e "
             (async () => {
               const core = require('@actions/core');
-              const { Octokit } = require('@octokit/rest');
+              const { Octokit } = await import('@octokit/rest');
               const fetch = (await import('node-fetch')).default;
               const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN, request: { fetch } });
 
@@ -59,15 +57,19 @@ jobs:
                   repo,
                 });
 
-                const activeAlerts = alerts.data.some(alert => alert.state === 'open');
-                const alertStatus = activeAlerts ? '1' : '0';
+                const activeAlerts = alerts.data.filter(alert => alert.state === 'open');
+                const highActiveAlerts = activeAlerts.some(alert => 
+                  (alert.rule.security_severity_level === 'high' || alert.rule.security_severity_level === 'critical') && alert.state !== 'dismissed'
+                );
+                const lowActiveAlerts = activeAlerts.some(alert => 
+                  (alert.rule.security_severity_level === 'low' || alert.rule.security_severity_level === 'medium') && alert.state !== 'dismissed'
+                );
 
-                console.log(alerts.data);
-                console.log(alerts.data.length);
-                console.log('Alert status: ', alertStatus);
-
-                // Set the output variable
-                core.setOutput('alert_status', alertStatus);
+                console.log(highActiveAlerts);
+                console.log(lowActiveAlerts);
+          
+                core.setOutput('high_alert_status', highActiveAlerts ? '1' : '0');
+                core.setOutput('low_alert_status', lowActiveAlerts ? '1' : '0');
               }
 
               await checkAlerts();
@@ -88,17 +90,18 @@ jobs:
           role-duration-seconds: 10000
 
       - name: Verify AWS Identity
-        run: |
-          aws sts get-caller-identity
-
-      - name: Log Outputs
-        run: |
-          echo "alert_status: ${{ needs.check-alerts.outputs.alert_status }}"
+        run: aws sts get-caller-identity
 
       - name: Put Metric Data
         run: |
-          if [ "${{ needs.check-alerts.outputs.alert_status }}" == "1" ]; then
-            aws cloudwatch put-metric-data --metric-name SecurityAlert --namespace SecurityMonitoring --value 1 --unit Count --dimensions AlertType=AlertMetric;
+          if [ "${{ needs.check-alerts.outputs.high_alert_status }}" == "1" ]; then
+            aws cloudwatch put-metric-data --metric-name SecurityAlert --namespace SecurityMonitoring --value 1 --unit Count --dimensions AlertType=highCodeScanVulnerability;
           else
-            aws cloudwatch put-metric-data --metric-name SecurityAlert --namespace SecurityMonitoring --value 0 --unit Count --dimensions AlertType=AlertMetric;
+            aws cloudwatch put-metric-data --metric-name SecurityAlert --namespace SecurityMonitoring --value 0 --unit Count --dimensions AlertType=highCodeScanVulnerability;
+          fi
+
+          if [ "${{ needs.check-alerts.outputs.low_alert_status }}" == "1" ]; then
+            aws cloudwatch put-metric-data --metric-name SecurityAlert --namespace SecurityMonitoring --value 1 --unit Count --dimensions AlertType=lowCodeScanVulnerability;
+          else
+            aws cloudwatch put-metric-data --metric-name SecurityAlert --namespace SecurityMonitoring --value 0 --unit Count --dimensions AlertType=lowCodeScanVulnerability;
           fi
