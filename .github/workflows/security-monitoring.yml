@@ -21,13 +21,6 @@ jobs:
       high_alert_status: ${{ steps.check-alerts.outputs.high_alert_status }}
       low_alert_status: ${{ steps.check-alerts.outputs.low_alert_status }}
     steps:
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ secrets.SECURITY_VULNERABILITY_ROLE_ARN }}
-          aws-region: us-west-2
-          role-duration-seconds: 10000
-
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
@@ -35,9 +28,6 @@ jobs:
 
       - name: Install dependencies
         run: npm install @octokit/rest node-fetch @actions/core
-
-      - name: Verify AWS Identity
-        run: aws sts get-caller-identity
 
       - name: Check for security alerts
         id: check-alerts
@@ -83,14 +73,10 @@ jobs:
     needs: [check-alerts]
     steps:
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v4.0.2
         with:
           role-to-assume: ${{ secrets.SECURITY_VULNERABILITY_ROLE_ARN }}
           aws-region: us-west-2
-          role-duration-seconds: 10000
-
-      - name: Verify AWS Identity
-        run: aws sts get-caller-identity
 
       - name: Put Metric Data
         run: |
