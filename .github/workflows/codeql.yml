@@ -28,6 +28,7 @@ jobs:
       matrix:
         include:
           - language: python
+            build-mode: none
 
     steps:
       - name: Checkout repository
