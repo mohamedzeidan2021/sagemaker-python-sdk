@@ -8,6 +8,7 @@ on:
   push:
     branches: [ "master" ]
 
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.run_id }}
   cancel-in-progress: true
@@ -28,29 +29,23 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const { Octokit } = require("@octokit/rest");
-            const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
-
             async function checkAlerts() {
               const owner = context.repo.owner;
               const repo = context.repo.repo;
-              const alerts = await octokit.rest.codeScanning.listAlertsForRepo({
+              const alerts = await github.rest.codeScanning.listAlertsForRepo({
                 owner,
                 repo,
               });
-
               const activeAlerts = alerts.data.filter(alert => alert.state === 'open');
               const highActiveAlerts = activeAlerts.some(alert => 
                 (alert.rule.security_severity_level === 'high' || alert.rule.security_severity_level === 'critical') && alert.state !== 'dismissed'
               );
               const lowActiveAlerts = activeAlerts.some(alert => 
-                (alert.rule.security_severity_level === 'low' || alert.rule.security_severity_level == 'medium') && alert.state !== 'dismissed'
+                (alert.rule.security_severity_level === 'low' || alert.rule.security_severity_level === 'medium') && alert.state !== 'dismissed'
               );
-
               core.setOutput('high_alert_status', highActiveAlerts ? '1' : '0');
               core.setOutput('low_alert_status', lowActiveAlerts ? '1' : '0');
             }
-
             await checkAlerts();
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -72,7 +67,6 @@ jobs:
           else
             aws cloudwatch put-metric-data --metric-name SecurityAlert --namespace SecurityMonitoring --value 0 --unit Count --dimensions AlertType=HighCodeScanVulnerability;
           fi
-
           if [ "${{ needs.check-alerts.outputs.low_alert_status }}" == "1" ]; then
             aws cloudwatch put-metric-data --metric-name SecurityAlert --namespace SecurityMonitoring --value 1 --unit Count --dimensions AlertType=LowCodeScanVulnerability;
           else
