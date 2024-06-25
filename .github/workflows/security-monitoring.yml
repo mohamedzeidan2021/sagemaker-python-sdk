@@ -29,13 +29,10 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const { Octokit } = require("@octokit/rest");
-            const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
-
             async function checkAlerts() {
               const owner = context.repo.owner;
               const repo = context.repo.repo;
-              const alerts = await octokit.rest.codeScanning.listAlertsForRepo({
+              const alerts = await github.rest.codeScanning.listAlertsForRepo({
                 owner,
                 repo,
               });
