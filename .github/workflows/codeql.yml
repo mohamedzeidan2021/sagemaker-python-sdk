@@ -1,44 +1,35 @@
 name: "CodeQL"
 
 on:
+  push:
+    branches: [ "master" ]
   pull_request:
     branches: [ "master" ]
   schedule:
-    - cron: '30 2 * * *'
+    - cron: '0 0 * * 5'
+
+permissions: "read-all"
 
 jobs:
   analyze:
-    name: Analyze (${{ matrix.language }})
-    runs-on: ${{ 'ubuntu-latest' }}
-
+    name: "Analyze"
+    runs-on: "ubuntu-latest"
     permissions:
-      # required for all workflows
-      security-events: write
-
-      # required to fetch internal or private CodeQL packs
-      packages: read
-
-      # only required for workflows in private repositories
       actions: read
       contents: read
-
-    strategy:
-      matrix:
-        include:
-          - language: python
-            build-mode: none
+      security-events: write
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - name: "Checkout repository"
+        uses: "actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608"
 
-      # Initializes the CodeQL tools for scanning.
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
+      - name: "Run CodeQL init"
+        uses: "github/codeql-action/init@9fdb3e49720b44c48891d036bb502feb25684276"
         with:
-          languages: ${{ matrix.language }}
-          build-mode: ${{ matrix.build-mode }}
+          config-file: "./.github/codeql.yml"
+          languages: "python"
 
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
-        with:
-          category: "/language:${{matrix.language}}"
+      - name: "Run CodeQL autobuild"
+        uses: "github/codeql-action/autobuild@9fdb3e49720b44c48891d036bb502feb25684276"
+
+      - name: "Run CodeQL analyze"
+        uses: "github/codeql-action/analyze@9fdb3e49720b44c48891d036bb502feb25684276"
