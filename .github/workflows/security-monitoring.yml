@@ -5,9 +5,6 @@ on:
     workflows: ["CodeQL"]
     types:
       - completed
-  push:
-    branches: [ "master" ]
-
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.run_id }}
