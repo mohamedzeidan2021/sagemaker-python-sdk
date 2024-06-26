@@ -5,6 +5,8 @@ on:
     workflows: ["CodeQL"]
     types:
       - completed
+  push:
+    branches: [ "master" ]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.run_id }}
@@ -54,18 +56,18 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4.0.2
         with:
-          role-to-assume: ${{ secrets.SECURITY_VULNERABILITY_ROLE_ARN }}
+          role-to-assume: arn:aws:iam::381492231164:role/GithubActionsRole-us-west-2
           aws-region: us-west-2
 
       - name: Put Metric Data
         run: |
           if [ "${{ needs.check-alerts.outputs.high_alert_status }}" == "1" ]; then
-            aws cloudwatch put-metric-data --metric-name SecurityAlert --namespace SecurityMonitoring --value 1 --unit Count --dimensions AlertType=HighCodeScanVulnerability;
+            aws cloudwatch put-metric-data --metric-name HighCodeScanningAlert --namespace SecurityMonitor --value 1 --unit Count --dimensions AlertType=alert;
           else
-            aws cloudwatch put-metric-data --metric-name SecurityAlert --namespace SecurityMonitoring --value 0 --unit Count --dimensions AlertType=HighCodeScanVulnerability;
+            aws cloudwatch put-metric-data --metric-name HighCodeScanningAlert --namespace SecurityMonitor --value 0 --unit Count --dimensions AlertType=alert;
           fi
           if [ "${{ needs.check-alerts.outputs.low_alert_status }}" == "1" ]; then
-            aws cloudwatch put-metric-data --metric-name SecurityAlert --namespace SecurityMonitoring --value 1 --unit Count --dimensions AlertType=LowCodeScanVulnerability;
+            aws cloudwatch put-metric-data --metric-name HighCodeScanningAlert --namespace SecurityMonitor --value 1 --unit Count --dimensions AlertType=alert;
           else
-            aws cloudwatch put-metric-data --metric-name SecurityAlert --namespace SecurityMonitoring --value 0 --unit Count --dimensions AlertType=LowCodeScanVulnerability;
+            aws cloudwatch put-metric-data --metric-name HighCodeScanningAlert --namespace SecurityMonitor --value 0 --unit Count --dimensions AlertType=alert;
           fi
