@@ -51,7 +51,7 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4.0.2
         with:
-          role-to-assume: arn:aws:iam::381492231164:role/GithubActionsRole-us-west-2
+          role-to-assume: ${{ secrets.SECURITY_VULNERABILITY_ROLE_ARN }}
           aws-region: us-west-2
       - name: Put Metric Data
         run: |
