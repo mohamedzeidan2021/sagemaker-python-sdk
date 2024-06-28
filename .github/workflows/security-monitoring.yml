@@ -57,12 +57,12 @@ jobs:
       - name: Put Metric Data
         run: |
           if [ "${{ needs.check-alerts.outputs.high_alert_status }}" == "1" ]; then
-            aws cloudwatch put-metric-data --metric-name HighCodeScanningAlert --namespace SecurityMonitoringMetrics --value 1 --unit Count
+            aws cloudwatch put-metric-data --metric-name HighCodeScanningAlert --namespace SecurityMonitoringMetrics --value 1 --unit Count --dimensions ProjectName=sagemaker-python-sdk
           else
-            aws cloudwatch put-metric-data --metric-name HighCodeScanningAlert --namespace SecurityMonitoringMetrics --value 0 --unit Count
+            aws cloudwatch put-metric-data --metric-name HighCodeScanningAlert --namespace SecurityMonitoringMetrics --value 0 --unit Count --dimensions ProjectName=sagemaker-python-sdk
           fi
           if [ "${{ needs.check-alerts.outputs.low_alert_status }}" == "1" ]; then
-            aws cloudwatch put-metric-data --metric-name LowCodeScanningAlert --namespace SecurityMonitoringMetrics --value 1 --unit Count
+            aws cloudwatch put-metric-data --metric-name LowCodeScanningAlert --namespace SecurityMonitoringMetrics --value 1 --unit Count --dimensions ProjectName=sagemaker-python-sdk
           else
-            aws cloudwatch put-metric-data --metric-name LowCodeScanningAlert --namespace SecurityMonitoringMetrics --value 0 --unit Count
+            aws cloudwatch put-metric-data --metric-name LowCodeScanningAlert --namespace SecurityMonitoringMetrics --value 0 --unit Count --dimensions ProjectName=sagemaker-python-sdk
           fi
