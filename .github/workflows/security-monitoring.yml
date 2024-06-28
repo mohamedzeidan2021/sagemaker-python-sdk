@@ -61,7 +61,7 @@ jobs:
             aws cloudwatch put-metric-data --metric-name HighCodeScanningAlert --namespace SecurityMonitoringMetrics --value 0 --unit Count
           fi
           if [ "${{ needs.check-alerts.outputs.low_alert_status }}" == "1" ]; then
-            aws cloudwatch put-metric-data --metric-name HighCodeScanningAlert --namespace SecurityMonitoringMetrics --value 1 --unit Count --dimensions AlertType=alert;
+            aws cloudwatch put-metric-data --metric-name LowCodeScanningAlert --namespace SecurityMonitoringMetrics --value 1 --unit Count
           else
-            aws cloudwatch put-metric-data --metric-name HighCodeScanningAlert --namespace SecurityMonitoringMetrics --value 0 --unit Count --dimensions AlertType=alert;
+            aws cloudwatch put-metric-data --metric-name LowCodeScanningAlert --namespace SecurityMonitoringMetrics --value 0 --unit Count
           fi
