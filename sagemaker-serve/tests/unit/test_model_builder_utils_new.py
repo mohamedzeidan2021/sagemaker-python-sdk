@@ -474,17 +474,21 @@ class TestSerializationUtilities(unittest.TestCase):
     @patch("sagemaker.serve.model_builder_utils.DEFAULT_SERIALIZERS_BY_FRAMEWORK")
     def test_fetch_serializer_for_known_framework(self, mock_default_serializers):
         """Test fetching serializer for known framework."""
-        mock_serializer = Mock()
-        mock_deserializer = Mock()
-        mock_default_serializers.__getitem__.return_value = (mock_serializer, mock_deserializer)
+        # The table stores classes; the lookup instantiates them.
+        mock_serializer_cls = Mock()
+        mock_deserializer_cls = Mock()
+        mock_default_serializers.__getitem__.return_value = (
+            mock_serializer_cls,
+            mock_deserializer_cls,
+        )
         mock_default_serializers.__contains__.return_value = True
 
         serializer, deserializer = self.utils._fetch_serializer_and_deserializer_for_framework(
             "pytorch"
         )
 
-        self.assertEqual(serializer, mock_serializer)
-        self.assertEqual(deserializer, mock_deserializer)
+        self.assertEqual(serializer, mock_serializer_cls.return_value)
+        self.assertEqual(deserializer, mock_deserializer_cls.return_value)
 
     def test_fetch_serializer_for_unknown_framework(self):
         """Test fetching serializer for unknown framework returns defaults."""

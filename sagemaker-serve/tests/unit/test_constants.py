@@ -80,20 +80,32 @@ class TestDefaultSerializersByFramework(unittest.TestCase):
             self.assertIsNotNone(serializer)
             self.assertIsNotNone(deserializer)
 
+    def test_table_holds_classes_not_instances(self):
+        """The table must not instantiate its entries at import time.
+
+        TorchTensorSerializer.__init__ imports torch, so instantiating it here would make
+        torch a hard import-time requirement of the whole serve package.
+        """
+        for framework, (serializer, deserializer) in DEFAULT_SERIALIZERS_BY_FRAMEWORK.items():
+            self.assertTrue(isinstance(serializer, type), f"{framework} serializer is an instance")
+            self.assertTrue(
+                isinstance(deserializer, type), f"{framework} deserializer is an instance"
+            )
+
     def test_pytorch_serializers(self):
         serializer, deserializer = DEFAULT_SERIALIZERS_BY_FRAMEWORK[Framework.PYTORCH]
-        self.assertEqual(serializer.__class__.__name__, "TorchTensorSerializer")
-        self.assertEqual(deserializer.__class__.__name__, "JSONDeserializer")
+        self.assertEqual(serializer.__name__, "TorchTensorSerializer")
+        self.assertEqual(deserializer.__name__, "JSONDeserializer")
 
     def test_tensorflow_serializers(self):
         serializer, deserializer = DEFAULT_SERIALIZERS_BY_FRAMEWORK[Framework.TENSORFLOW]
-        self.assertEqual(serializer.__class__.__name__, "NumpySerializer")
-        self.assertEqual(deserializer.__class__.__name__, "JSONDeserializer")
+        self.assertEqual(serializer.__name__, "NumpySerializer")
+        self.assertEqual(deserializer.__name__, "JSONDeserializer")
 
     def test_sklearn_serializers(self):
         serializer, deserializer = DEFAULT_SERIALIZERS_BY_FRAMEWORK[Framework.SKLEARN]
-        self.assertEqual(serializer.__class__.__name__, "NumpySerializer")
-        self.assertEqual(deserializer.__class__.__name__, "NumpyDeserializer")
+        self.assertEqual(serializer.__name__, "NumpySerializer")
+        self.assertEqual(deserializer.__name__, "NumpyDeserializer")
 
 
 if __name__ == "__main__":
