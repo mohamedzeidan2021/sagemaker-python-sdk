@@ -24,24 +24,12 @@ from sagemaker.core.workflow.parameters import (
     ParameterBoolean,
 )
 from sagemaker.core.workflow.execution_variables import ExecutionVariable
+from sagemaker.core.workflow._step_type_registry import on_delayed_return_registered
 from sagemaker.core.workflow.properties import (
     Properties,
     PropertiesMap,
     PropertiesList,
 )
-
-
-# Lazy import to avoid circular dependency
-# DelayedReturn is in MLOps package which depends on Core
-def _get_delayed_return_class():
-    """Lazy import of DelayedReturn to avoid circular dependency."""
-    try:
-        from sagemaker.mlops.workflow.function_step import DelayedReturn
-
-        return DelayedReturn
-    except ImportError:
-        # If MLOps is not installed, return None
-        return None
 
 
 def _pipeline_variable_reducer(pipeline_variable):
@@ -67,7 +55,8 @@ dispatch_table = {
     PropertiesList: _pipeline_variable_reducer,
 }
 
-# Add DelayedReturn to dispatch table if MLOps is available
-_delayed_return_class = _get_delayed_return_class()
-if _delayed_return_class is not None:
-    dispatch_table[_delayed_return_class] = _pipeline_variable_reducer
+# DelayedReturn lives in sagemaker-mlops. It registers itself with Core on import, which
+# may happen before or after this module loads, so subscribe rather than look it up now.
+on_delayed_return_registered(
+    lambda cls: dispatch_table.setdefault(cls, _pipeline_variable_reducer)
+)

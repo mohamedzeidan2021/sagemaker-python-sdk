@@ -1293,7 +1293,10 @@ class _ModelBuilderUtils:
         """
         framework_enum = self._normalize_framework_to_enum(framework)
         if framework_enum and framework_enum in DEFAULT_SERIALIZERS_BY_FRAMEWORK:
-            return DEFAULT_SERIALIZERS_BY_FRAMEWORK[framework_enum]
+            # The table holds classes, not instances, so that importing this module does not
+            # construct TorchTensorSerializer (which imports torch). Instantiate on lookup.
+            serializer_cls, deserializer_cls = DEFAULT_SERIALIZERS_BY_FRAMEWORK[framework_enum]
+            return serializer_cls(), deserializer_cls()
         return NumpySerializer(), JSONDeserializer()
 
     def _normalize_framework_to_enum(

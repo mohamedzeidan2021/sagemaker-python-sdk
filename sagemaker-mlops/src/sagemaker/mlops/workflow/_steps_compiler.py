@@ -27,11 +27,8 @@ from sagemaker.mlops.workflow.condition_step import ConditionStep
 from sagemaker.core.workflow.step_outputs import get_step
 from sagemaker.core.workflow.pipeline_definition_config import PipelineDefinitionConfig
 from sagemaker.core.workflow.step_outputs import StepOutput
-from sagemaker.core.workflow.utilities import (
-    step_compilation_context_manager,
-    get_config_hash,
-    get_code_hash,
-)
+from sagemaker.core.workflow.utilities import step_compilation_context_manager
+from sagemaker.mlops.workflow.utilities import get_code_hash, get_config_hash
 from sagemaker.core.common_utils import sagemaker_timestamp
 
 logger = logging.getLogger(__name__)

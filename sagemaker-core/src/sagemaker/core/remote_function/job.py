@@ -67,6 +67,7 @@ from sagemaker.core.s3 import s3_path_join, S3Uploader
 
 from sagemaker.core.remote_function.core.stored_function import StoredFunction, _SerializedData
 from sagemaker.core.remote_function.core.pipeline_variables import Context
+from sagemaker.core.workflow._step_type_registry import is_delayed_return
 
 from sagemaker.core.remote_function.runtime_environment.runtime_environment_manager import (
     RuntimeEnvironmentManager,
@@ -1121,17 +1122,10 @@ class _Job:
                 if isinstance(arg, (Parameter, ExecutionVariable, Properties)):
                     container_args.extend([arg.expr["Get"], arg.to_string()])
 
-                # Lazy import to avoid circular dependency
-                try:
-                    from sagemaker.mlops.workflow.function_step import DelayedReturn
-
-                    if isinstance(arg, DelayedReturn):
-                        # The uri is a Properties object
-                        uri = get_step(arg)._properties.OutputDataConfig.S3OutputPath
-                        container_args.extend([uri.expr["Get"], uri.to_string()])
-                except ImportError:
-                    # MLOps not installed, skip DelayedReturn handling
-                    pass
+                if is_delayed_return(arg):
+                    # The uri is a Properties object
+                    uri = get_step(arg)._properties.OutputDataConfig.S3OutputPath
+                    container_args.extend([uri.expr["Get"], uri.to_string()])
 
         if run_info is not None:
             container_args.extend(["--run_in_context", json.dumps(dataclasses.asdict(run_info))])

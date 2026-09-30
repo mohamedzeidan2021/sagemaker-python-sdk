@@ -29,17 +29,20 @@ dependencies = [
     "deepdiff",
     "mlflow",
     "sagemaker_schema_inference_artifacts",
-    "pytest",
     "tqdm",
     "psutil",
-    "tritonclient[http]",
-    "onnx",
-    "onnxruntime",
-    "torch>=2.0.0"
 ]
 
 [project.optional-dependencies]
+# torch and the Triton/ONNX client stack are only needed for local/in-process serving and
+# tensor (de)serialization. Keeping them optional avoids pulling ~2 GB of CUDA wheels into
+# every install of sagemaker / sagemaker-mlops. Every torch reference in this package is
+# resolved lazily.
+torch = ["torch>=2.0.0"]
+triton = ["tritonclient[http]", "onnx", "onnxruntime"]
+all = ["sagemaker-serve[torch,triton]"]
 test = [
+    "sagemaker-serve[torch,triton]",
     "pytest",
     "pytest-cov",
     "mock",

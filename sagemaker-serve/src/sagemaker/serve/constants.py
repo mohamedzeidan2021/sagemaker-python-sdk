@@ -123,16 +123,18 @@ class Framework(Enum):
 # ========================================
 
 DEFAULT_SERIALIZERS_BY_FRAMEWORK: Dict[Framework, Tuple] = {
-    Framework.XGBOOST: (LibSVMSerializer(), CSVDeserializer()),
-    Framework.LDA: (RecordSerializer(), RecordDeserializer()),
-    Framework.PYTORCH: (TorchTensorSerializer(), JSONDeserializer()),
-    Framework.TENSORFLOW: (NumpySerializer(), JSONDeserializer()),
-    Framework.MXNET: (RecordSerializer(), JSONDeserializer()),
-    Framework.CHAINER: (NumpySerializer(), JSONDeserializer()),
-    Framework.SKLEARN: (NumpySerializer(), NumpyDeserializer()),
-    Framework.HUGGINGFACE: (JSONSerializer(), JSONDeserializer()),
-    Framework.DJL: (JSONSerializer(), JSONDeserializer()),
-    Framework.SPARKML: (NumpySerializer(), JSONDeserializer()),
-    Framework.NTM: (RecordSerializer(), JSONDeserializer()),
-    Framework.SMD: (JSONSerializer(), JSONDeserializer()),
+    Framework.XGBOOST: (LibSVMSerializer, CSVDeserializer),
+    Framework.LDA: (RecordSerializer, RecordDeserializer),
+    # Class, not instance: TorchTensorSerializer.__init__ imports torch, which would
+    # make torch a hard import-time requirement of the whole serve package.
+    Framework.PYTORCH: (TorchTensorSerializer, JSONDeserializer),
+    Framework.TENSORFLOW: (NumpySerializer, JSONDeserializer),
+    Framework.MXNET: (RecordSerializer, JSONDeserializer),
+    Framework.CHAINER: (NumpySerializer, JSONDeserializer),
+    Framework.SKLEARN: (NumpySerializer, NumpyDeserializer),
+    Framework.HUGGINGFACE: (JSONSerializer, JSONDeserializer),
+    Framework.DJL: (JSONSerializer, JSONDeserializer),
+    Framework.SPARKML: (NumpySerializer, JSONDeserializer),
+    Framework.NTM: (RecordSerializer, JSONDeserializer),
+    Framework.SMD: (JSONSerializer, JSONDeserializer),
 }

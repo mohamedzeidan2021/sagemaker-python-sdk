@@ -327,11 +327,10 @@ def convert_pipeline_variables_to_pickleable(func_args: Tuple, func_kwargs: Dict
     """
 
     from sagemaker.core.helper.pipeline_variable import PipelineVariable
-
-    from sagemaker.mlops.workflow.function_step import DelayedReturn
+    from sagemaker.core.workflow._step_type_registry import is_delayed_return
 
     def convert(arg):
-        if isinstance(arg, DelayedReturn):
+        if is_delayed_return(arg):
             return _DelayedReturn(
                 uri=get_step(arg)._properties.OutputDataConfig.S3OutputPath._pickleable,
                 reference_path=arg._reference_path,

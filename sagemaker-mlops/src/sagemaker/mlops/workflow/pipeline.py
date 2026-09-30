@@ -82,7 +82,7 @@ from sagemaker.mlops.workflow.triggers import (
     Trigger,
     validate_default_parameters_for_schedules,
 )
-from sagemaker.core.workflow.utilities import list_to_request
+from sagemaker.mlops.workflow.utilities import list_to_request
 from sagemaker.mlops.workflow._steps_compiler import StepsCompiler
 from sagemaker.core.telemetry.telemetry_logging import _telemetry_emitter, TelemetryParamType
 from sagemaker.core.telemetry.constants import Feature

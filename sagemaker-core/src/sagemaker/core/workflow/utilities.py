@@ -16,6 +16,7 @@ from __future__ import absolute_import
 
 import inspect
 import logging
+import warnings
 from functools import wraps
 from pathlib import Path
 from typing import List, Sequence, Union, Set, TYPE_CHECKING, Optional
@@ -64,22 +65,21 @@ _pipeline_config: _PipelineConfig = None
 
 
 def list_to_request(entities: Sequence[Union[Entity, "StepCollection"]]) -> List[RequestType]:
-    """Get the request structure for list of entities.
+    """Deprecated. Moved to :mod:`sagemaker.mlops.workflow.utilities`.
 
-    Args:
-        entities (Sequence[Entity]): A list of entities.
-    Returns:
-        list: A request structure for a workflow service call.
+    This helper dispatches on ``StepCollection``, which lives in ``sagemaker-mlops``,
+    so it belongs there. Kept here as a shim for backwards compatibility.
     """
-    from sagemaker.mlops.workflow.step_collections import StepCollection
+    warnings.warn(
+        "sagemaker.core.workflow.utilities.list_to_request has moved to "
+        "sagemaker.mlops.workflow.utilities.list_to_request. This shim requires "
+        "sagemaker-mlops to be installed and will be removed in a future version.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    from sagemaker.mlops.workflow.utilities import list_to_request as _moved
 
-    request_dicts = []
-    for entity in entities:
-        if isinstance(entity, Entity):
-            request_dicts.append(entity.to_request())
-        elif isinstance(entity, StepCollection):
-            request_dicts.extend(entity.request_dicts())
-    return request_dicts
+    return _moved(entities)
 
 
 @contextmanager
@@ -143,41 +143,17 @@ def load_step_compilation_context():
 
 
 def get_code_hash(step: Entity) -> str:
-    """Get the hash of the code artifact(s) for the given step
+    """Deprecated. Moved to :mod:`sagemaker.mlops.workflow.utilities`."""
+    warnings.warn(
+        "sagemaker.core.workflow.utilities.get_code_hash has moved to "
+        "sagemaker.mlops.workflow.utilities.get_code_hash. This shim requires "
+        "sagemaker-mlops to be installed and will be removed in a future version.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    from sagemaker.mlops.workflow.utilities import get_code_hash as _moved
 
-    Args:
-        step (Entity): A pipeline step object (Entity type because Step causes circular import)
-    Returns:
-        str: A hash string representing the unique code artifact(s) for the step
-    """
-    from sagemaker.mlops.workflow.steps import ProcessingStep, TrainingStep
-
-    if isinstance(step, ProcessingStep) and step.step_args:
-        kwargs = step.step_args.func_kwargs
-        source_dir = kwargs.get("source_dir")
-        submit_class = kwargs.get("submit_class")
-        dependencies = get_processing_dependencies(
-            [
-                kwargs.get("dependencies"),
-                kwargs.get("submit_py_files"),
-                [submit_class] if submit_class else None,
-                kwargs.get("submit_jars"),
-                kwargs.get("submit_files"),
-            ]
-        )
-        code = kwargs.get("submit_app") or kwargs.get("code")
-
-        return get_processing_code_hash(code, source_dir, dependencies)
-
-    if isinstance(step, TrainingStep) and step.step_args:
-        model_trainer = step.step_args.func_args[0]
-        source_code = model_trainer.source_code
-        if source_code:
-            source_dir = source_code.source_dir
-            requirements = source_code.requirements
-            entry_point = source_code.entry_script
-            return get_training_code_hash(entry_point, source_dir, requirements)
-    return None
+    return _moved(step)
 
 
 def get_processing_dependencies(dependency_args: List[List[str]]) -> List[str]:
@@ -267,20 +243,17 @@ def get_training_code_hash(
 
 
 def get_config_hash(step: Entity):
-    """Get the hash of the config artifact(s) for the given step
+    """Deprecated. Moved to :mod:`sagemaker.mlops.workflow.utilities`."""
+    warnings.warn(
+        "sagemaker.core.workflow.utilities.get_config_hash has moved to "
+        "sagemaker.mlops.workflow.utilities.get_config_hash. This shim requires "
+        "sagemaker-mlops to be installed and will be removed in a future version.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    from sagemaker.mlops.workflow.utilities import get_config_hash as _moved
 
-    Args:
-        step (Entity): A pipeline step object (Entity type because Step causes circular import)
-    Returns:
-        str: A hash string representing the unique config artifact(s) for the step
-    """
-    from sagemaker.mlops.workflow.steps import ProcessingStep
-
-    if isinstance(step, ProcessingStep) and step.step_args:
-        config = step.step_args.func_kwargs.get("configuration")
-        if config:
-            return hash_object(config)
-    return None
+    return _moved(step)
 
 
 def hash_object(obj) -> str:

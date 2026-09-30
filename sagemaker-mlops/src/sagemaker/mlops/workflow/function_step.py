@@ -39,6 +39,7 @@ from sagemaker.mlops.workflow.retry import RetryPolicy
 from sagemaker.mlops.workflow.steps import Step, ConfigurableRetryStep, StepTypeEnum
 
 from sagemaker.core.workflow.step_outputs import StepOutput, get_step
+from sagemaker.core.workflow._step_type_registry import register_delayed_return_type
 from sagemaker.core.workflow.utilities import trim_request_dict, load_step_compilation_context
 
 from sagemaker.core.s3 import s3_path_join
@@ -617,3 +618,9 @@ def step(
     if _func is None:
         return _step
     return _step(_func)
+
+
+# Core's remote-function machinery must recognise DelayedReturn (for cloudpickle dispatch and
+# for wiring step output URIs into container args) but cannot import it without inverting the
+# package layering. Hand the class down instead.
+register_delayed_return_type(DelayedReturn)

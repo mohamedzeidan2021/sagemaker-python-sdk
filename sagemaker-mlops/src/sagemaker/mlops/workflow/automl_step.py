@@ -26,7 +26,6 @@ from sagemaker.mlops.workflow.retry import RetryPolicy
 from sagemaker.mlops.workflow.steps import ConfigurableRetryStep, CacheConfig, Step, StepTypeEnum
 from sagemaker.core.workflow.utilities import validate_step_args_input, trim_request_dict
 
-from sagemaker.serve.model_builder import ModelBuilder
 
 
 class AutoMLStep(ConfigurableRetryStep):
@@ -159,6 +158,10 @@ class AutoMLStep(ConfigurableRetryStep):
         inference_container_environment = inference_container.Environment
         image = inference_container.Image
         model_data = inference_container.ModelDataUrl
+        from sagemaker.mlops._optional_deps import require_model_builder
+
+        ModelBuilder = require_model_builder()
+
         model_builder = ModelBuilder(
             image_uri=image,
             s3_model_data_url=model_data,

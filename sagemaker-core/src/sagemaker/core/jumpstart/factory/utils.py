@@ -23,7 +23,7 @@ from sagemaker.core import (
     model_uris,
     script_uris,
 )
-from sagemaker.serve.async_inference.async_inference_config import AsyncInferenceConfig
+from sagemaker.core.inference_config import AsyncInferenceConfig
 from sagemaker.core.deserializers.base import BaseDeserializer
 from sagemaker.core.serializers.base import BaseSerializer
 from sagemaker.core.explainer.explainer_config import ExplainerConfig
@@ -74,7 +74,7 @@ from sagemaker.core.jumpstart.utils import (
 
 from sagemaker.core.model_monitor.data_capture_config import DataCaptureConfig
 
-from sagemaker.serve.serverless.serverless_inference_config import ServerlessInferenceConfig
+from sagemaker.core.inference_config import ServerlessInferenceConfig
 from sagemaker.core.helper.session_helper import Session
 from sagemaker.core.common_utils import (
     camel_case_to_pascal_case,
@@ -83,7 +83,7 @@ from sagemaker.core.common_utils import (
     Tags,
 )
 from sagemaker.core.helper.pipeline_variable import PipelineVariable
-from sagemaker.serve.compute_resource_requirements.resource_requirements import ResourceRequirements
+from sagemaker.core.resource_requirements import ResourceRequirements
 from sagemaker.core import resource_requirements
 from sagemaker.core.enums import EndpointType
 

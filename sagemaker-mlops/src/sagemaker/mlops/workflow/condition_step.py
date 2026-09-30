@@ -21,7 +21,7 @@ from sagemaker.mlops.workflow.steps import (
     StepTypeEnum,
 )
 
-from sagemaker.core.workflow.utilities import list_to_request
+from sagemaker.mlops.workflow.utilities import list_to_request
 from sagemaker.core.helper.pipeline_variable import RequestType
 from sagemaker.core.workflow.properties import (
     Properties,

@@ -23,8 +23,6 @@ classifiers = [
 ]
 dependencies = [
     "sagemaker-core>=2.23.0",
-    "sagemaker-train>=1.23.0",
-    "sagemaker-serve>=1.23.0",
     "cryptography>=46.0.0",
     "boto3>=1.42.2,<2.0",
     "botocore>=1.42.2,<2.0",
@@ -34,6 +32,11 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+# sagemaker-train / sagemaker-serve are optional: pipeline orchestration needs neither, and
+# sagemaker-serve pulls torch + the CUDA stack. See sagemaker/mlops/_optional_deps.py.
+train = ["sagemaker-train>=1.23.0"]
+serve = ["sagemaker-serve>=1.23.0"]
+all = ["sagemaker-mlops[train,serve]"]
 feature-processor = [
     "pyspark==3.5.1",
     "sagemaker-feature-store-pyspark==2.0.0",
@@ -44,6 +47,7 @@ test = [
     "pytest",
     "pytest-cov",
     "mock",
+    "sagemaker-mlops[train,serve]",
     "setuptools<82",
     "pyspark==3.5.1",
     "sagemaker-feature-store-pyspark==2.0.0",

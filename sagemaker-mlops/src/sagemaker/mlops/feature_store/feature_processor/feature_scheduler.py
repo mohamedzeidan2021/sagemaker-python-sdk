@@ -91,8 +91,13 @@ from sagemaker.mlops.workflow.retry import (
 
 from sagemaker.mlops.workflow.steps import TrainingStep
 
-from sagemaker.train.model_trainer import ModelTrainer
-from sagemaker.train.configs import Compute, Networking, StoppingCondition, SourceCode, Tag
+from sagemaker.core.training.configs import (
+    Compute,
+    Networking,
+    SourceCode,
+    StoppingCondition,
+    Tag,
+)
 from sagemaker.core.shapes import OutputDataConfig
 from sagemaker.core.workflow.pipeline_context import PipelineSession
 
@@ -869,7 +874,7 @@ def _prepare_model_trainer_from_remote_decorator_config(
     pipeline_session: PipelineSession,
     role: str,
     public_key_pem: str = None,
-) -> ModelTrainer:
+) -> "ModelTrainer":
     """Prepares a ModelTrainer instance from remote decorator configuration.
 
     Args:
@@ -958,6 +963,10 @@ def _prepare_model_trainer_from_remote_decorator_config(
     logger.info("Tags count: %d", len(tags) if tags else 0)
 
     logger.info("Environment keys: %s", list(environment.keys()))
+
+    from sagemaker.mlops._optional_deps import require_model_trainer
+
+    ModelTrainer = require_model_trainer()
 
     model_trainer = ModelTrainer(
         training_image=remote_decorator_config.image_uri,
